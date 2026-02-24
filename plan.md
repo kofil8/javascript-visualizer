@@ -1,0 +1,5 @@
+- Interactive code editor with syntax highlighting that allows users to write, edit, and format JavaScript snippets.
+- Real-time execution engine that processes the code and captures outputs, errors, and variable states.
+- Smart data visualization dashboard that automatically transforms complex data structures (like arrays, objects, and nested JSON) into interactive, graphical representations.
+- Execution playback or "step-through" timeline that lets users see how data and visualizations evolve line-by-line.
+- Snippet management system to save, name, and share specific code experiments and their visual results with others.
