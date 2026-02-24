@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 import {
   BarChart,
   Bar,
@@ -24,6 +26,9 @@ interface VisualizerProps {
 const COLORS = ["#fbbf24", "#3b82f6", "#10b981", "#ef4444", "#8b5cf6", "#f59e0b"];
 
 export function Visualizer({ data }: VisualizerProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
   const chartData = useMemo(() => {
     if (!data) return null;
 
@@ -79,16 +84,22 @@ export function Visualizer({ data }: VisualizerProps) {
   if (!chartData) return null;
 
   return (
-    <div className="w-full min-h-[150px] bg-white/5 rounded-xl p-6 border border-white/10 mt-4">
+    <div className={cn(
+      "w-full min-h-[150px] rounded-xl p-6 border mt-4 transition-colors",
+      isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"
+    )}>
       {chartData.type === "sequence" ? (
         <div className="flex flex-wrap items-center gap-3">
           {chartData.data.map((step: string, i: number) => (
             <div key={i} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-yellow-400/20 border border-yellow-400/50 flex items-center justify-center text-yellow-400 font-bold shadow-[0_0_10px_rgba(250,204,21,0.1)]">
+              <div className={cn(
+                "w-10 h-10 rounded-full border flex items-center justify-center font-bold shadow-sm",
+                isDark ? "bg-yellow-400/20 border-yellow-400/50 text-yellow-400" : "bg-yellow-400 text-black border-yellow-500"
+              )}>
                 {step}
               </div>
               {i < chartData.data.length - 1 && (
-                <ArrowRight size={16} className="text-zinc-600" />
+                <ArrowRight size={16} className="text-zinc-400" />
               )}
             </div>
           ))}
@@ -96,17 +107,26 @@ export function Visualizer({ data }: VisualizerProps) {
       ) : chartData.type === "graph" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {Object.entries(chartData.data).map(([node, neighbors]: [string, any]) => (
-            <div key={node} className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-start gap-3">
-              <div className="w-8 h-8 rounded bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold shrink-0">
+            <div key={node} className={cn(
+              "p-3 rounded-lg border flex items-start gap-3",
+              isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"
+            )}>
+              <div className={cn(
+                "w-8 h-8 rounded border flex items-center justify-center font-bold shrink-0",
+                isDark ? "bg-blue-500/20 border-blue-500/50 text-blue-400" : "bg-blue-500 text-white border-blue-600"
+              )}>
                 {node}
               </div>
               <div className="flex flex-wrap gap-2 pt-1">
                 {neighbors.map((neighbor: string, j: number) => (
-                  <span key={j} className="text-xs px-2 py-1 rounded bg-zinc-800 text-zinc-400 border border-white/5">
+                  <span key={j} className={cn(
+                    "text-xs px-2 py-1 rounded border",
+                    isDark ? "bg-zinc-800 text-zinc-400 border-white/5" : "bg-white text-zinc-600 border-black/5"
+                  )}>
                     {neighbor}
                   </span>
                 ))}
-                {neighbors.length === 0 && <span className="text-xs text-zinc-600 italic">no edges</span>}
+                {neighbors.length === 0 && <span className="text-xs text-zinc-400 italic">no edges</span>}
               </div>
             </div>
           ))}
@@ -115,44 +135,54 @@ export function Visualizer({ data }: VisualizerProps) {
         <ResponsiveContainer width="100%" height={250}>
           {chartData.type === "bar" ? (
             <BarChart data={chartData.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#333" : "#ddd"} vertical={false} />
               <XAxis 
                 dataKey={chartData.xAxis} 
-                stroke="#888" 
+                stroke={isDark ? "#888" : "#666"} 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
               />
               <YAxis 
-                stroke="#888" 
+                stroke={isDark ? "#888" : "#666"} 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
               />
               <Tooltip 
-                contentStyle={{ backgroundColor: "#151515", border: "1px solid #333", borderRadius: "8px" }}
+                contentStyle={{ 
+                  backgroundColor: isDark ? "#151515" : "#fff", 
+                  border: `1px solid ${isDark ? "#333" : "#ddd"}`, 
+                  borderRadius: "8px",
+                  color: isDark ? "#fff" : "#000"
+                }}
                 itemStyle={{ color: "#fbbf24" }}
               />
               <Bar dataKey={chartData.yAxis} fill="#fbbf24" radius={[4, 4, 0, 0]} />
             </BarChart>
           ) : chartData.type === "line" ? (
             <LineChart data={chartData.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#333" : "#ddd"} vertical={false} />
               <XAxis 
                 dataKey={chartData.xAxis} 
-                stroke="#888" 
+                stroke={isDark ? "#888" : "#666"} 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
               />
               <YAxis 
-                stroke="#888" 
+                stroke={isDark ? "#888" : "#666"} 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
               />
               <Tooltip 
-                contentStyle={{ backgroundColor: "#151515", border: "1px solid #333", borderRadius: "8px" }}
+                contentStyle={{ 
+                  backgroundColor: isDark ? "#151515" : "#fff", 
+                  border: `1px solid ${isDark ? "#333" : "#ddd"}`, 
+                  borderRadius: "8px",
+                  color: isDark ? "#fff" : "#000"
+                }}
                 itemStyle={{ color: "#3b82f6" }}
               />
               <Line type="monotone" dataKey={chartData.yAxis} stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: "#3b82f6" }} />
@@ -174,7 +204,12 @@ export function Visualizer({ data }: VisualizerProps) {
                 ))}
               </Pie>
               <Tooltip 
-                contentStyle={{ backgroundColor: "#151515", border: "1px solid #333", borderRadius: "8px" }}
+                contentStyle={{ 
+                  backgroundColor: isDark ? "#151515" : "#fff", 
+                  border: `1px solid ${isDark ? "#333" : "#ddd"}`, 
+                  borderRadius: "8px",
+                  color: isDark ? "#fff" : "#000"
+                }}
               />
             </PieChart>
           )}

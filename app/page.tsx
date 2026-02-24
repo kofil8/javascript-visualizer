@@ -20,7 +20,10 @@ import {
   Menu,
   X,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Sun,
+  Moon,
+  Monitor
 } from "lucide-react";
 import { executeCode, type ExecutionLog } from "@/lib/engine/runner";
 import { cn } from "@/lib/utils";
@@ -28,8 +31,13 @@ import { Visualizer } from "@/components/visualizer";
 import { createClient } from "@/lib/supabase/client";
 import { EXAMPLES } from "@/components/examples/example-snippets";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 
 export default function Home() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => setMounted(true), []);
   const supabase = createClient();
   const [code, setCode] = useState<string>(EXAMPLES[0].code);
   const [logs, setLogs] = useState<ExecutionLog[]>([]);
@@ -105,9 +113,9 @@ export default function Home() {
   const visibleLogs = currentStep === -1 ? logs : logs.slice(0, currentStep + 1);
 
   return (
-    <main className="flex flex-col h-screen bg-[#050505] text-white overflow-hidden font-sans selection:bg-yellow-400/30">
+    <main className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans selection:bg-yellow-400/30 transition-colors duration-300">
       {/* Header */}
-      <header className="h-14 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-[#0a0a0a]/80 backdrop-blur-md z-40 sticky top-0 shrink-0">
+      <header className="h-14 border-b border-border flex items-center justify-between px-4 md:px-6 bg-card/80 backdrop-blur-md z-40 sticky top-0 shrink-0">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -126,6 +134,29 @@ export default function Home() {
         </div>
         
         <div className="flex items-center gap-2 md:gap-3">
+          {mounted && (
+            <div className="flex items-center bg-background/50 border border-border rounded-lg p-1">
+              <button 
+                onClick={() => setTheme('light')}
+                className={cn("p-1.5 rounded-md transition-all", theme === 'light' ? "bg-yellow-400 text-black shadow-sm" : "text-zinc-500 hover:text-foreground")}
+              >
+                <Sun size={14} />
+              </button>
+              <button 
+                onClick={() => setTheme('dark')}
+                className={cn("p-1.5 rounded-md transition-all", theme === 'dark' ? "bg-yellow-400 text-black shadow-sm" : "text-zinc-500 hover:text-foreground")}
+              >
+                <Moon size={14} />
+              </button>
+              <button 
+                onClick={() => setTheme('system')}
+                className={cn("p-1.5 rounded-md transition-all", theme === 'system' ? "bg-yellow-400 text-black shadow-sm" : "text-zinc-500 hover:text-foreground")}
+              >
+                <Monitor size={14} />
+              </button>
+            </div>
+          )}
+          <div className="h-6 w-[1px] bg-border mx-1 hidden sm:block" />
           <button 
             onClick={() => setShowExamples(!showExamples)}
             className={cn(
@@ -158,7 +189,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute inset-0 z-50 bg-[#050505]/95 backdrop-blur-xl p-4 md:p-8 overflow-y-auto"
+              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-xl p-4 md:p-8 overflow-y-auto"
             >
               <div className="max-w-5xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
@@ -169,7 +200,7 @@ export default function Home() {
                     </h2>
                     <p className="text-zinc-500">Select a template to start visualizing complex logic instantly.</p>
                   </div>
-                  <button onClick={() => setShowExamples(false)} className="p-2 hover:bg-white/5 rounded-full text-zinc-500 hover:text-white transition-colors">
+                  <button onClick={() => setShowExamples(false)} className="p-2 hover:bg-foreground/5 rounded-full text-zinc-500 hover:text-foreground transition-colors">
                     <X size={24} />
                   </button>
                 </div>
@@ -178,7 +209,7 @@ export default function Home() {
                     <button
                       key={example.id}
                       onClick={() => loadExample(example.code)}
-                      className="p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-yellow-400/50 hover:bg-white/[0.06] transition-all text-left group relative overflow-hidden"
+                      className="p-6 rounded-2xl bg-card border border-border hover:border-yellow-400/50 hover:shadow-xl transition-all text-left group relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Play size={16} className="text-yellow-400" fill="currentColor" />
@@ -202,25 +233,25 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Sidebar - Desktop */}
-        <aside className="hidden md:flex w-14 border-r border-white/5 flex-col items-center py-6 gap-6 bg-[#0a0a0a]">
+        <aside className="hidden md:flex w-14 border-r border-border flex-col items-center py-6 gap-6 bg-card">
           <button className="p-2.5 bg-yellow-400/10 rounded-xl text-yellow-400 shadow-lg shadow-yellow-400/5">
             <LayoutPanelLeft size={22} />
           </button>
-          <button className="p-2.5 hover:bg-white/5 rounded-xl text-zinc-500 hover:text-white transition-all">
+          <button className="p-2.5 hover:bg-foreground/5 rounded-xl text-zinc-500 hover:text-foreground transition-all">
             <Terminal size={22} />
           </button>
-          <button className="p-2.5 hover:bg-white/5 rounded-xl text-zinc-500 hover:text-white transition-all">
+          <button className="p-2.5 hover:bg-foreground/5 rounded-xl text-zinc-500 hover:text-foreground transition-all">
             <History size={22} />
           </button>
           <div className="mt-auto flex flex-col gap-4">
-            <button onClick={() => setIsFullScreen(!isFullScreen)} className="p-2.5 hover:bg-white/5 rounded-xl text-zinc-500 hover:text-white transition-all">
+            <button onClick={() => setIsFullScreen(!isFullScreen)} className="p-2.5 hover:bg-foreground/5 rounded-xl text-zinc-500 hover:text-foreground transition-all">
               {isFullScreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
             </button>
           </div>
         </aside>
 
         {/* Mobile Navigation Tabs */}
-        <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex bg-[#151515]/90 backdrop-blur-xl border border-white/10 rounded-full p-1 shadow-2xl ring-1 ring-white/5">
+        <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex bg-card/90 backdrop-blur-xl border border-border rounded-full p-1 shadow-2xl ring-1 ring-foreground/5">
           <button 
             onClick={() => setActiveTab('editor')}
             className={cn(
@@ -245,34 +276,34 @@ export default function Home() {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Editor Section */}
           <div className={cn(
-            "flex-1 flex flex-col border-r border-white/5 min-w-0 transition-all duration-300",
+            "flex-1 flex flex-col border-r border-border min-w-0 transition-all duration-300",
             activeTab === 'output' ? "hidden md:flex" : "flex"
           )}>
-            <div className="h-10 bg-[#0a0a0a] border-b border-white/5 flex items-center px-4 justify-between shrink-0">
+            <div className="h-10 bg-card border-b border-border flex items-center px-4 justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Source Editor</span>
               </div>
               <span className="text-[10px] font-mono text-zinc-600">main.js</span>
             </div>
-            <div className="flex-1 relative bg-[#050505] overflow-hidden">
+            <div className="flex-1 relative bg-background overflow-hidden">
               <CodeEditor code={code} onChange={setCode} />
             </div>
           </div>
 
           {/* Visualization Section */}
           <div className={cn(
-            "flex-1 flex flex-col bg-[#050505] transition-all duration-300 min-w-0",
+            "flex-1 flex flex-col bg-background transition-all duration-300 min-w-0",
             activeTab === 'editor' ? "hidden md:flex" : "flex"
           )}>
-            <div className="h-10 bg-[#0a0a0a] border-b border-white/5 flex items-center px-4 justify-between shrink-0">
+            <div className="h-10 bg-card border-b border-border flex items-center px-4 justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500/50" />
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Visual Output</span>
               </div>
               
               {logs.length > 0 && (
-                <div className="flex items-center gap-1 bg-white/5 rounded-lg px-1.5 py-0.5 border border-white/5">
+                <div className="flex items-center gap-1 bg-card rounded-lg px-1.5 py-0.5 border border-border">
                   <button 
                     onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                     disabled={currentStep <= 0}
@@ -343,7 +374,7 @@ export default function Home() {
                       className={cn(
                         "group transition-all duration-500 p-4 rounded-2xl border",
                         index === currentStep 
-                          ? "bg-white/[0.03] border-white/10 shadow-2xl shadow-black scale-100" 
+                          ? "bg-card border-border shadow-2xl shadow-black/10 scale-100" 
                           : "bg-transparent border-transparent opacity-40 scale-[0.98] grayscale"
                       )}
                     >
@@ -415,7 +446,7 @@ export default function Home() {
       </div>
 
       {/* Footer / Status Bar */}
-      <footer className="h-8 border-t border-white/5 bg-[#0a0a0a] flex items-center px-4 justify-between text-[10px] text-zinc-500 z-40">
+      <footer className="h-8 border-t border-border bg-card flex items-center px-4 justify-between text-[10px] text-zinc-500 z-40">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />

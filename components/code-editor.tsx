@@ -1,6 +1,7 @@
 "use client";
 
 import Editor from "@monaco-editor/react";
+import { useTheme } from "next-themes";
 
 interface CodeEditorProps {
   code: string;
@@ -8,12 +9,14 @@ interface CodeEditorProps {
 }
 
 export function CodeEditor({ code, onChange }: CodeEditorProps) {
+  const { resolvedTheme } = useTheme();
+
   return (
     <div className="w-full h-full min-h-[300px] md:min-h-0">
       <Editor
         height="100%"
         defaultLanguage="javascript"
-        theme="vs-dark"
+        theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
         value={code}
         onChange={(value) => onChange(value || "")}
         loading={<div className="flex items-center justify-center h-full text-zinc-500 font-mono text-xs">Loading Editor...</div>}
